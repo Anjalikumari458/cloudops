@@ -1,12 +1,12 @@
 # CloudOps Health Monitor
 
-A small Flask service packaged with Docker and designed for deployment on an Ubuntu EC2 virtual machine. It demonstrates a practical cloud deployment workflow: build an image, run a container, expose an HTTP endpoint, and check application health.
+A Flask-based cloud health monitoring service packaged with Docker and designed for deployment on an Ubuntu AWS EC2 instance.
 
 ## Features
 
 - Flask REST endpoints: `/`, `/health`, and `/system`
 - Docker image with a non-root runtime user
-- Docker health check and restart policy
+- Docker health checks and restart policy
 - Docker Compose deployment configuration
 - Ubuntu EC2 deployment helper script
 - GitHub Actions workflow for automated unit tests
@@ -15,26 +15,30 @@ A small Flask service packaged with Docker and designed for deployment on an Ubu
 
 ```text
 Browser
-  |
-  | HTTP :80
-  v
+   |
+   | HTTP :80
+   v
 AWS EC2 (Ubuntu Linux)
-  |
-  v
+   |
+   v
 Docker Engine / Docker Compose
-  |
-  v
-CloudOps Health Monitor container
-  |
-  v
+   |
+   v
+CloudOps Health Monitor
+   |
+   v
 Flask + Gunicorn (:5000)
 ```
 
-## Run locally
+## Requirements
 
-Requirements: Python 3.12+ and Docker with the Compose plugin.
+- Python 3.12+
+- Docker
+- Docker Compose plugin
 
-### Option A: Docker Compose
+## Run Locally
+
+### Using Docker Compose
 
 ```bash
 docker compose up -d --build
@@ -42,6 +46,7 @@ docker compose ps
 ```
 
 Open:
+
 - http://localhost/
 - http://localhost/health
 - http://localhost/system
@@ -52,48 +57,65 @@ Stop:
 docker compose down
 ```
 
-### Option B: Python
+### Using Python
 
 ```bash
 python -m venv .venv
-# Windows PowerShell:
-.venv\\Scripts\\Activate.ps1
-# macOS/Linux:
-source .venv/bin/activate
+```
 
+Windows:
+
+```powershell
+.venv\Scripts\Activate.ps1
+```
+
+Linux/macOS:
+
+```bash
+source .venv/bin/activate
+```
+
+Install dependencies:
+
+```bash
 pip install -r requirements.txt
 python app.py
 ```
 
 Visit http://localhost:5000/health.
 
-## Deploy to AWS EC2 (Ubuntu)
+## Deploy to AWS EC2
 
-1. In AWS Console, launch an Ubuntu Server EC2 instance for learning.
-2. In its Security Group, allow **SSH (TCP 22) only from your own public IP**. Add **HTTP (TCP 80) from the internet** only if you want the demo publicly reachable.
-3. Connect using the SSH command shown by AWS. For an Ubuntu AMI, the username is usually `ubuntu`:
+1. Launch an Ubuntu EC2 instance.
+2. Configure SSH access from your own IP and HTTP access if public access is required.
+3. Connect through SSH:
 
 ```bash
 ssh -i /path/to/your-key.pem ubuntu@YOUR_EC2_PUBLIC_IP
 ```
 
-4. Install Git and clone your repository:
+4. Install Git:
 
 ```bash
 sudo apt-get update
 sudo apt-get install -y git
-git clone https://github.com/YOUR_USERNAME/cloudops-health-monitor.git
-cd cloudops-health-monitor
 ```
 
-5. Run the deployment helper:
+5. Clone the repository:
+
+```bash
+git clone https://github.com/Anjalikumari458/cloudops.git
+cd cloudops
+```
+
+6. Run the deployment script:
 
 ```bash
 chmod +x scripts/deploy-ubuntu.sh
 ./scripts/deploy-ubuntu.sh
 ```
 
-6. Verify:
+7. Verify:
 
 ```bash
 sudo docker compose ps
@@ -101,27 +123,25 @@ sudo docker logs cloudops-health-monitor
 curl http://localhost/health
 ```
 
-Then open `http://YOUR_EC2_PUBLIC_IP/health` in your browser.
+Replace `YOUR_EC2_PUBLIC_IP` with your actual EC2 IP address.
 
-> Replace `YOUR_USERNAME` and `YOUR_EC2_PUBLIC_IP` with your own values. Do not upload your private `.pem` key, AWS access keys, passwords, or other secrets to GitHub.
+**Security:** Never upload private SSH keys, AWS credentials, passwords, or other secrets to GitHub.
 
-## Run tests
+## Run Tests
 
 ```bash
 pip install -r requirements.txt
 python -m unittest discover -s tests -v
 ```
 
-## Useful Linux and Docker commands
+## Useful Linux and Docker Commands
 
 ```bash
-# Linux/server
 uname -a
 df -h
 free -h
 top
 
-# Docker
 docker images
 docker ps
 docker compose logs -f
@@ -129,14 +149,16 @@ docker compose restart
 docker compose down
 ```
 
-## Project scope and honest status
+## Future Improvements
 
-This repository provides the application, container configuration, tests, CI workflow, and an EC2 deployment script. The AWS deployment is **not performed automatically** by uploading this repository. Complete the EC2 steps above and verify the public health endpoint before describing it as deployed on AWS.
+- HTTPS with TLS certificates
+- Structured application logging and metrics
+- Amazon ECR integration
+- Automated AWS deployment using GitHub Actions
+- Monitoring and alerting
 
-## Possible improvements
+## Project Status
 
-- Add HTTPS with a reverse proxy and TLS certificate
-- Add structured application logging and metrics
-- Push versioned images to Amazon ECR
-- Deploy through GitHub Actions using securely stored GitHub Secrets or AWS OIDC
-- Add monitoring and alerting
+This repository contains the Flask application, Docker configuration, automated tests, CI workflow, and EC2 deployment helper script.
+
+AWS deployment must be performed and verified separately before claiming the application is live on AWS.
