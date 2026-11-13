@@ -1,0 +1,9 @@
+services:
+  cloudops-monitor:
+    build: .
+    container_name: cloudops-health-monitor
+    ports:
+      - "80:5000"
+    environment:
+      APP_ENV: production
+    restart: unless-stopped
